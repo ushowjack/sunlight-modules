@@ -1,0 +1,12 @@
+{
+  "name": "keydown-event",
+  "version": "1.0.1",
+  "description": "use for keydown",
+  "main": "control.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "UShow Jack",
+  "license": "ISC",
+  "dependencies": {}
+}

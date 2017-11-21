@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible"
+        content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script src="./control-script.js"></script>
+  <script src="./videoconf.js"></script>
+  <script src="./videoPlayer.next.js"></script>
+
+  <script>
+    const videoPlayer = new VideoPlayer(videoconf);
+    videoPlayer.init(['123', '2314', '214314', 'fsg'], true, 500);
+    videoPlayer.play();
+
+    // console.log('addVedioList', videoPlayer.addVedioList(['123', '2314', '214314', 'fsg']));
+    // console.log('getVedioList', videoPlayer.getVedioList());
+    // console.log('deleteVidioList', videoPlayer.deleteVidioList(['fsg']));
+
+    // console.log(videoPlayer.nextVideo());
+    // console.log(videoPlayer.getCurVideo());
+
+    // console.log(videoPlayer.preVideo());
+    // console.log(videoPlayer.preVideo());
+
+    // videoPlayer.init();
+
+  </script>
+</body>
+
+</html>

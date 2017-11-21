@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible"
+        content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="world"></div>
+  <script src="./control-script.js"></script>
+  <script>
+    const controlor = new Controler();
+
+    controlor.addListener(document.querySelector('body'));
+    // controlor.addListener(document.querySelector('body'));
+    controlor.addListener(document.querySelector('html'));
+    controlor.addListener(document.querySelector('#world'));
+
+    // controlor.addListener(document.querySelector('body'));
+    document.querySelector('body')
+      .addEventListener('enter.press', ev => {
+        console.log('this is body!')
+      });
+
+    var hello = function() {
+      console.log('this is html!')
+    }
+    document.querySelector('html')
+      .addEventListener('enter.press', hello);
+    document.querySelector('#world')
+      .addEventListener('down.press', ev => {
+        console.log('this is world!')
+      });
+
+  </script>
+</body>
+
+</html>
