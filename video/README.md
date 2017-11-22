@@ -1,7 +1,7 @@
 # videoPlayer-modules
 
 ### 安装
-目前只支持使用npm下载，如果需要脚本可以到[git仓](https://github.com/ushowjack/sunlight-modules.git)自行下载。
+目前只支持使用npm下载，如果需要脚本可以到[git仓](https://github.com/ushowjack/sunlight-modules.git)自行下载。
 ```bash
 npm install sunlight-video
 ```
@@ -116,7 +116,7 @@ export default videoconf = {
 *isLoop{ Bealoon } | false*
 *interval{ Number } | 300*
 
-初始化，传入视频列表，此处视频列表会合并配置项的视频列表，设置是否能循环播放，以及查询状态的时间间隔。
+初始化，传入视频列表，此处视频列表会合并配置项的视频列表，设置是否能循环播放，以及查询状态的时间间隔。
 
 ```ES6
   const videoPlayer = new VideoPlayer(videoconf);
@@ -124,7 +124,7 @@ export default videoconf = {
 ```
 #### videoPlayer#play()
 
-播放视频，执行播放命令。**目前打开视频后会自动打开状态查询计时器，所以如果想停止计时器，请调用destroy API**
+播放视频，执行播放命令。**目前打开视频后会自动打开状态查询计时器，所以如果想停止计时器，请调用destroy API**
 
 ```ES6
   videoPlayer.play();
@@ -140,7 +140,7 @@ export default videoconf = {
     console.log('The video is close!');
   });
 ```
-#### 视频列表方法
+#### 视频列表方法
 - videoPlayer#addVedioList(addList)
 - videoPlayer#deleteVidioList(delList)
 - videoPlayer#getVedioList()
@@ -153,7 +153,7 @@ export default videoconf = {
   console.log('deleteVidioList', videoPlayer.deleteVidioList(['fsg']));
 ```
 ### 生命周期
-*每个视频播放都有一个生命周期，开始、暂停、结束以及异常情况（**如果计时20次未打开视频判定为异常**）。每个生命周期都有钩子，会传入当前播放视频的url以及对应的index索引。*
+*每个视频播放都有一个生命周期，开始、暂停、结束以及异常情况（**如果计时20次未打开视频判定为异常**）。每个生命周期都有钩子，会传入当前播放视频的url以及对应的index索引。*
 ```ES6
   stopCallback({ url, index }) {
     console.log('stopCallback');
