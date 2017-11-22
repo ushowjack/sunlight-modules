@@ -1,117 +1,236 @@
-class VideoPlayer {
-  constructor(options = {}) {
-    // 获取所有的配置
-    for (let key in options) {
-      if (options.hasOwnProperty(key)) {
-        this[`$${key}`] = options[key];
-      }
-    }
+ export default class VideoPlayer {
+   constructor(options = {}, isLoop = false) {
+     if (VideoPlayer.instance) {
+       return this;
+     } else {
+       VideoPlayer.instance = this;
+     }
 
-    for (let key in options.data) {
-      if (options.data.hasOwnProperty(key)) {
-        this[`_${key}`] = options.data[key];
-        this[key] = options.data[key];
-      }
-    }
+     this.count = 0;
+     this.$options = options;
 
-    for (let key in options.methods) {
-      if (options.methods.hasOwnProperty(key)) {
-        this[key] = options.methods[key];
-      }
-    }
+     for (let key in options.methods) {
+       if (options.methods.hasOwnProperty(key)) {
+         this[key] = options.methods[key];
+       }
+     }
 
-    // 状态发生改变调用状态回调函数
-    Object.defineProperty(this, 'status', {
-      set(status) {
-        if (this._status === status) return;
-        this._status = status;
-        this.statusCallback(status);
-      },
-      get() {
-        return this._status;
-      },
-      enumerable: true,
-      configurable: true
-    })
+     //  对实例扩容
+     for (let key in options) {
+       if (options.hasOwnProperty(key) && key !== 'methods') {
+         this[key] = options[key];
+       }
+     }
 
-  }
-  init() {
+     this.$isLoop = isLoop;
 
-  }
+     this.statusCode = this.$statusCode = options.statusCode;
 
-  // ---------------- 播放方法 ----------------//
+     this.$playStatus_old = this.$statusCode.stop;
 
-  // 测试用例
-  test() {
-    console.log('测试成功');
-  }
+     this.$videoList = [];
+     this.$playVideo = '';
+     this.$videoList_pre = [];
+   }
 
-  /**
-   * @description 开始播放事件
-   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @param {any} videoList 
-   * @param {any} callback 
-   * @param {boolean} [isLoop=false] 
-   * @memberof VideoPlayer
-   */
-  startPlay(videoList, isLoop = false) {
-    this.$videoList = typeof videoList === 'string' ? [videoList] : videoList;
-    this.updateVideoStatus();
-  }
+   // ---------------- 视频列表方法 ----------------//
 
-  /**
-   * @description 停止回调
-   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @returns 
-   * @memberof VideoPlayer
-   */
-  stopCallback() {
+   // 添加视频url
+   addVedioList(list = []) {
+     const videoList = list.map((url, index) => {
+       return { url, index };
+     });
+     if (this.$videoList) {
+       typeof this.$videoList === 'string' ? this.$videoList = [this.$videoList] : false;
+     } else {
+       this.$videoList = [];
+     }
+     this.$videoList = this.$videoList.concat(videoList);
+     return this.$videoList;
+   }
 
-  }
-  startCallback() {
+   // 获取播放列表
+   getVedioList() {
+     return this.$videoList;
+   }
 
-  }
+   // 删除列表
+   deleteVidioList(delList = []) {
+     this.$videoList = this.$videoList.filter(url => {
+       if (~delList.indexOf(url.url)) return false;
+       return url;
+     })
 
-  /**
-   * @description 状态器，开始播放方法执行后打开，非打开状态时结束，只做一件事，更新播放状态
-   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @memberof VideoPlayer
-   */
-  updateVideoStatus() {
-    this.statusTimer = setInterval(() => {
-      const status = this.getVideoStatus();
-      this.status = status;
-      console.log(status)
+     return this.$videoList;
+   }
 
-      // 如果改变，则判断是否为播放状态
-    }, 5000);
-  }
+   // 清空列表
+   clearVidioList() {
+     this.$videoList = [];
+     return this.$videoList;
+   }
 
-  statusCallback(status) {
-    switch (status) {
-      case this.$statusCode.play:
-        console.log('开始播放');
-        this.startCallback();
-        break;
+   // ---------------- 衔接方法 ----------------//
 
-      case this.$statusCode.stop:
-        console.log('停止播放')
-        this.stopCallback();
-        break;
+   // 获取当前播放url
+   getCurVideo() {
+     return this.$curVideo;
+   }
 
-      case this.$statusCode.pause:
-        console.log('暂停播放')
-        this.pauseCallback();
-        break;
+   // 播放下一个
+   nextVideo() {
+     if (!this.$videoList.length) {
+       console.warn('[ system ] 播放列表为空！！');
+       return false;
+     }
 
-      case this.$statusCode.error:
-        console.log('播放失败')
-        this.errorCallback();
-        break;
+     // 对上一个播放的url进行处理
+     if (this.$isLoop) {
+       this.$curVideo && this.$videoList.push(this.$curVideo);
+     } else {
+       this.$curVideo && this.$videoList_pre.push(this.$curVideo);
+     }
+     // 获取播放地址，播放视频
+     this.$curVideo = this.$videoList.shift();
+     this.start(this.$curVideo);
 
-      default:
-        break;
+     return this.$videoList;
+   }
 
-    }
-  }
-}
+   // 播放上一个
+   preVideo() {
+     console.warn(`preVideo: this method is waiting for development!`);
+   }
+
+   // ---------------- 初始化添加配置 ----------------//
+
+   /**
+    * @description 初始化播放列表、是否循环播放
+    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+    * @param {any} videoList 
+    * @param {boolean} [isLoop=false] 
+    * @memberof VideoPlayer
+    */
+   init(videoList = '', isLoop = false, interval = 300) {
+     videoList = typeof videoList === 'string' ? [videoList] : videoList;
+     this.addVedioList(videoList);
+     this.$isLoop = isLoop;
+     this.$interval = interval;
+   }
+
+   /**
+    * @description 开始播放
+    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+    * @memberof VideoPlayer
+    */
+   play() {
+     this.nextVideo();
+     this.$timer = setInterval(() => {
+       this.matchStatus();
+     }, this.$interval);
+   }
+
+   /**
+    * @description 关闭整个视频进程,关闭状态更新器，并执行回调
+    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+    * @memberof VideoPlayer
+    */
+   destroy(callback) {
+     // 如果停止播放了，就不需要再重复执行关闭视频
+     this.$videoList = [];
+     if (this.$over) return false;
+
+     this.stop();
+     this.$destroyCallback = function() {
+       clearInterval(this.$timer);
+       callback && callback.apply(this);
+     }.bind(this);
+   }
+
+   //  是否错误
+   $isError() {
+     typeof this.$errorCount === 'undefined' ? this.$errorCount = 0 : this.$errorCount++;
+     if (this.$errorCount > 20 && this.$playStatus_old === this.$statusCode.stop) {
+       this.$errorCount = 0;
+       this.$errorCallback();
+     }
+   }
+
+   // ---------------- 生命周期触发 ----------------//
+
+   /**
+    * @description 状态器，开始播放方法执行后打开，非打开状态时结束，只做一件事，更新播放状态
+    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+    * @memberof VideoPlayer
+    */
+   matchStatus() {
+     const newStatus = this.getVideoStatus();
+
+     this.$isError();
+     // 当状态发生改变
+     if (newStatus !== this.$playStatus_old) {
+       this.errorCount = 0;
+
+       this.triggleCallback(newStatus);
+     } else {
+       console.log('[u-video]:播放状态未改变！');
+     }
+   }
+
+   /**
+    * @description 触发状态回调函数
+    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+    * @param {any} newStatus 
+    * @memberof VideoPlayer
+    */
+   triggleCallback(newStatus) {
+     if (this.$destroyCallback) {
+       this.$destroyCallback();
+       return false;
+     }
+     this.$playStatus_old = newStatus;
+
+     switch (newStatus) {
+       case this.$statusCode.stop:
+         this.$stopCallback();
+         break;
+       case this.$statusCode.play:
+         this.$startCallback();
+         break;
+       case this.$statusCode.pause:
+         this.$pauseCallback();
+         break;
+       default:
+         console.warn(`获取状态码【${newStatus}】未定义！`);
+         break;
+     }
+   }
+
+   // ---------------- 生命周期钩子 ----------------//
+
+   $stopCallback() {
+     if (this.$videoList.length) {
+       this.nextVideo();
+     } else {
+       this.$over = true;
+       clearInterval(this.$timer);
+     }
+     this.stopCallback(this.$curVideo);
+   }
+
+   $startCallback() {
+     this.startCallback(this.$curVideo);
+   }
+
+   $errorCallback() {
+     if (this.$destroyCallback) {
+       this.$destroyCallback();
+       return false;
+     }
+     this.errorCallback(this.$curVideo);
+   }
+
+   $pauseCallback() {
+     this.pauseCallback(this.$curVideo);
+   }
+ }

@@ -1,13 +1,9 @@
 const videoconf = {
   // ---------------- 存放数据 ----------------//
-
   // 获取window播放器对象
-  player: 'media',
-  volumn: 'volumn',
   statusCode: {
     stop: 2,
     play: 0,
-    // error: 3,
     pause: 1
   },
 
@@ -18,9 +14,7 @@ const videoconf = {
   methods: {
     // ---------------- 播放方法 ----------------//
     // 开始播放
-    start(url) {
-      this.status = 0;
-      // debugger
+    start({ url, index }) {
       console.log(`[-------开始播放 || url:${url}!!]`);
     },
 
@@ -48,7 +42,7 @@ const videoconf = {
       return 2;
     },
 
-    // 获取时长
+    // 获取时长,必须要有返回值
     getVideoTotal() {
       const time = 1;
       console.log(`[-------获取时长:${time}-----!!]`);
