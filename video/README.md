@@ -130,11 +130,15 @@ export default videoconf = {
   videoPlayer.play();
 ```
 
-#### videoPlayer#destroy()
+#### videoPlayer#destroy(callback)
+参数：
+*callback{ Function }*
 
-结束视频，**目前只支持清空视频列表，清空状态更新计时器**
+结束视频，**目前只支持清空视频列表，清空状态更新计时器。**为了解决关闭视频有延迟的问题，可以传入回调函数作为参数，从而在结束后调用。
 ```ES6
-  videoPlayer.destroy();
+  videoPlayer.destroy(()=>{
+    console.log('The video is close!');
+  });
 ```
 #### 视频列表方法
 - videoPlayer#addVedioList(addList)

@@ -1,6 +1,6 @@
 {
   "name": "sunlight-video",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "use for matching all machine ",
   "main": "videoPlayer.js",
   "scripts": {
