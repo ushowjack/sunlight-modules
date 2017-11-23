@@ -1,5 +1,5 @@
 {
-  "name": "keydown-event",
+  "name": "watch-event",
   "version": "1.0.1",
   "description": "use for keydown",
   "main": "control.js",

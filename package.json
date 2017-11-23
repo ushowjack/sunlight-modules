@@ -1,0 +1,19 @@
+{
+  "name": "sunlight_modules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ushowjack/sunlight-modules.git"
+  },
+  "author": "UShow Jack",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ushowjack/sunlight-modules/issues"
+  },
+  "homepage": "https://github.com/ushowjack/sunlight-modules#readme"
+}

@@ -12,30 +12,44 @@
 
 <body>
   <div id="world"></div>
+  <!-- <script src="./control-script.js"></script> -->
   <script src="./control-script.js"></script>
   <script>
-    const controlor = new Controler();
+    const controlor = new Controler({ 'LR': [37, 39], 'up': 40 }, true, 300);
+    controlor.addPress({
+      hello: 123,
+      enters: 323
+    })
 
-    controlor.addListener(document.querySelector('body'));
-    // controlor.addListener(document.querySelector('body'));
-    controlor.addListener(document.querySelector('html'));
+    // controlor.delPress(['LR']);
+
+    const unSubscribe = controlor.subscribe('hello', () => {
+      console.log('hello');
+    })
+
+    controlor.subscribe('hello', () => {
+      console.log('world');
+    })
+    controlor.subscribe('hello', () => {
+      console.log('sb');
+    });
+
+    // controlor.addListener(document.body);
     controlor.addListener(document.querySelector('#world'));
 
-    // controlor.addListener(document.querySelector('body'));
-    document.querySelector('body')
-      .addEventListener('enter.press', ev => {
-        console.log('this is body!')
+    document.querySelector('#world')
+      .addEventListener('LR', evt => {
+        console.log(`keyCode:${evt.detail.keyCode}`)
       });
 
-    var hello = function() {
-      console.log('this is html!')
-    }
-    document.querySelector('html')
-      .addEventListener('enter.press', hello);
-    document.querySelector('#world')
-      .addEventListener('down.press', ev => {
-        console.log('this is world!')
-      });
+    const world = document.querySelector('#world');
+    world.addEventListener('play', evt => {
+      console.log(`keyCode:${evt.detail.keyCode}`)
+    })
+    world.addEventListener('enter', evt => {
+      console.log(`keyCode:${evt.detail.keyCode}/${new Date()}`)
+    })
+    controlor.addPress({ 'play': [81, 87, 69] });
 
   </script>
 </body>

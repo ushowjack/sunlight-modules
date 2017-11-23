@@ -1,20 +1,20 @@
 /**
- * @description 用于格式化所有的按键名称，只需要在配置文件中添加，可以监听所有的按键
+ * @description 事件节流
  * @author USHOW JACK, EMAIL: ushowjack@GMail.com
- * @class Controler
+ * @param {any} fn 
+ * @param {any} interval 
+ * @returns 
  */
-
-// 事件节流
 function throttle(fn, interval) {
-  var _self = fn, //保存需要被延迟执行的函数引用
+  var $self = fn, //保存需要被延迟执行的函数引用
     timer, //定时器
     firstTime = true; //是否第一次调用
 
   return function() { //返回一个函数，形成闭包，持久化变量
     var args = arguments, //缓存变量
-      _me = this;
+      $me = this;
     if (firstTime) { //如果是第一次调用，不用延迟执行
-      _self.apply(_me, args);
+      $self.apply($me, args);
       return firstTime = false;
     }
     if (timer) { //如果定时器还在，说明上一次延迟执行还没有完成
@@ -23,15 +23,16 @@ function throttle(fn, interval) {
     timer = setTimeout(function() { //延迟一段时间执行
       clearTimeout(timer);
       timer = null;
-      _self.apply(_me, args);
+      $self.apply($me, args);
     }, interval);
   };
 }
 
 class Controler {
   constructor(options = {}, isThrottle = false, interval = 300) {
+
     // PC默认键值
-    this._options = {
+    this.$options = {
       'enter': 13,
       'back': 27,
       'ctrl': 17,
@@ -50,11 +51,20 @@ class Controler {
       '8': 56,
       '9': 57
     };
-    // keyName映射
-    this.map = { ...this._options, ...options };
-    this._options = {};
+
+    // TODO: 如果键值和键名重复就存在bug
+    for (const key in this.$options) {
+      if (this.$options.hasOwnProperty(key)) {
+        this.$options[this.$options[key]] = key;
+        delete this.$options[key];
+      }
+    }
+
     // DOM列表
-    this.elList = [];
+    this.$elList = [];
+
+    // 创建一个DOM
+    this.$outDocDom = document.createElement('div');
 
     let keydownTrigger = this.keydownTrigger;
     if (isThrottle) {
@@ -62,88 +72,129 @@ class Controler {
     }
     this.eventRecode = keydownTrigger.bind(this);
 
-    for (const key in this.map) {
+    this.addPress(options);
+  }
+
+  // ------------------- 按键处理 --------------------- //
+
+  /**
+   * @description 添加按键、一个事件名对应多个code
+   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+   * @param {Object} options 
+   * @memberof Controler
+   */
+  addPress(options) {
+    // 删除重复按键事件名
+    for (const key in this.$options) {
+      if (options.hasOwnProperty(this.$options[key])) {
+        delete this.$options[key];
+      }
+    }
+
+    // 翻转参数
+    for (const key in options) {
       if (options.hasOwnProperty(key)) {
-        // 使用值索引键名
-        this._options[options[key]] = key;
-      } else if (!this._options[this.map[key]]) {
-        this._options[this.map[key]] = key;
+        if (typeof options[key] === 'number') {
+          options[options[key]] = key;
+        } else if (options[key] instanceof Array) {
+          options[key].forEach(index => {
+            this.$options[index] = key;
+          })
+        }
+        delete options[key];
+      }
+    }
+
+    // 合并事件，一个事件对应多个keyCode
+    this.$options = { ...this.$options, ...options };
+
+    return this.$options;
+
+  }
+
+  /**
+   * @description 删除事件值，传入事件名即可
+   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+   * @param {any} [keyCode=[]] 
+   * @memberof Controler
+   */
+  delPress(keyCode = []) {
+    for (const key in this.$options) {
+      if (this.$options.hasOwnProperty(key) && ~keyCode.indexOf(this.$options[key])) {
+        delete this.$options[key];
       }
     }
   }
 
-  // 获取所有监听对象
-  getElems() {
-    return this.elList;
+  // ------------------- 事件处理 --------------------- //
+
+  event(type, el, keyCode) {
+    let evt = null;
+    keyCode = keyCode ? keyCode : 'CustomEvent';
+
+    try {
+      evt = new window.CustomEvent(type, { detail: { keyCode } });
+    } catch (e) {
+      evt = document.createEvent('Event');
+      evt.initEvent(type, true, true);
+    }
+
+    el ? el.dispatchEvent(evt) : this.$outDocDom.dispatchEvent(evt);
   }
 
-  // 获取所有键值对
-  getKeycode() {
-    return this._options;
+  // ------------------- 监听处理 --------------------- //
+
+  /**
+   * @description 订阅事件
+   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+   * @param {any} type 
+   * @param {any} callback 
+   * @returns 
+   * @memberof Controler
+   */
+  subscribe(type, callback) {
+    this.$outDocDom.addEventListener(type, callback, false);
+
+    const unSubscribe = function unSubscribe() {
+      this.$outDocDom.removeEventListener(type, callback);
+    }.bind(this);
+    return unSubscribe;
   }
 
-  // 添加键盘监听事件
-  addListener(el, callback) {
-    this.removeListener.bind(this)(el);
-    this.elList.push(el);
+  /**
+   * @description 发布事件
+   * @author USHOW JACK, EMAIL: ushowjack@GMail.com
+   * @param {any} type 
+   * @memberof Controler
+   */
+  publish(type) {
+    this.event(type);
+  }
+
+  // 添加按键事件
+  addListener(el) {
+    this.$elList.push(el);
+    document.removeEventListener('keydown', this.eventRecode);
     document.addEventListener('keydown', this.eventRecode, false);
   }
 
   // 解绑键盘事件
   removeListener(el) {
-    if (this.elList.indexOf(el) === -1) return;
-    this.elList.splice(this.elList.indexOf(el), 1);
+    if (this.$elList.indexOf(el) === -1) return;
+    this.$elList.splice(this.$elList.indexOf(el), 1);
   }
 
   // 触发自定义事件器 可以手动触发
-  keydownTrigger() {
-    // 如果键盘触发参数为event
-    // 如果手动触发参数为两个：keyName el
-    if (typeof arguments[0] === 'object') {
-      var keyCode = arguments[0].which || arguments[0].keyCode;
-      console.log(keyCode)
-      var keyName = this._options[keyCode];
-    } else {
-      var keyName = arguments[0];
-      var el = arguments[1];
+  keydownTrigger(evt) {
+    const keyCode = evt.which || evt.keyCode;
+    const el = evt.target;
+    const type = this.$options[keyCode];
+    if (!this.$options.hasOwnProperty(keyCode)) {
+      console.warn(`未定义该键: ${keyCode}`);
+      return false;
     }
-
-    if (keyName) {
-      // 第二参数可选 确保传入的是***.press
-      this.press(`${keyName.replace('.press','')}.press`, keyCode || el);
-    } else {
-      console.warn(`[对应键值{${keyCode}}未定义：请先定义！]`)
-    }
+    this.$elList.forEach(el => {
+      this.event(type, el, keyCode);
+    })
   }
-
-  // 自定义事件
-  press(keyName) {
-    let evt = null;
-    try {
-      evt = new window.CustomEvent(keyName);
-    } catch (e) {
-      evt = document.createEvent('Event');
-      evt.initEvent(keyName, true, true);
-    }
-
-    if (typeof arguments[1] === 'object' && typeof arguments[1] !== 'undefined') {
-      const el = arguments[1];
-
-      if (~this.elList.indexOf(el)) {
-        el.dispatchEvent(evt);
-      }
-    } else if (typeof arguments[1] === 'undefined') {
-      console.error(`[参数错误：请输入绑定DOM对象！]`);
-
-    } else {
-      this.elList.forEach(el => {
-        el.dispatchEvent(evt);
-      })
-      const keyCode = arguments[1];
-      const keyNameRaw = keyName.slice(0, keyName.indexOf('.'));
-      console.log(`[键盘输出：'${keyNameRaw}'] [键值：'${this.map[keyNameRaw]}']`);
-    }
-
-  }
-
 }
