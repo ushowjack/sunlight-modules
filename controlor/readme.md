@@ -2,7 +2,7 @@
 
 version: 1.0.2
 
-> *万物皆有变化，当发生变化时做相对应的动作，故为监听。在按键监听时才用一事件名对应多个 `keyCode`*
+> *万物皆有变化，当发生变化时做相对应的动作，故为监听。在按键监听时才用一事件名对应多个 `keyCode`*
 #### 用途:
 > *对监听事件进行封装，提高可读性。在这主要先对订阅发布模式和键盘事件的封装。*
 
@@ -52,20 +52,20 @@ version: 1.0.2
 ```
 
 **subscribe**
-*订阅事件，参数为事件名、回调函数，并且返回解绑函数。*
+*订阅事件，参数为事件名、回调函数，并且返回解绑函数。*
 *arguments | String | Function*
 
 ```ES6
   // 之后会添加发布回来的消息 
-  const unSubscribe = controlor.subscribe('play',()=>{
+  const unSubscribe = controlor.subscribe('play',()=>{
     console.log('play 发布了！')
   });
 
   // 解绑
-  unSubscribe();
+  unSubscribe();
 ```
 **publish**
-*发布事件，参数为事件名。*
+*发布事件，参数为事件名。*
 *arguments | String*
 
 ```ES6
@@ -87,7 +87,7 @@ version: 1.0.2
 
 *arguments | el*
 
-*绑定监听对象，**注意：** keydown 事件绑定在document上，而且实际上只绑定一次。原理是通过 keydown 事件的触发来遍历所有绑定好的DOM元素触发对应的事件。有点像 document 是信息集散地，addListener 即订阅数据。*
+*绑定监听对象，**注意：** keydown 事件绑定在document上，而且实际上只绑定一次。原理是通过 keydown 事件的触发来遍历所有绑定好的DOM元素触发对应的事件。有点像 document 是信息集散地，addListener 即订阅数据。*
 
 ```ES6
   improt Controlor from 'keydownEvent';
@@ -109,7 +109,7 @@ version: 1.0.2
 
 *~~手动触发自定义事件方法~~*
 ~~***注意**：解绑过后的事件是无法被触发的，参数可以监听事件的名称也可以是键名。*~~
-**说明：目前个人觉得有了发布订阅的 API，此 API 作用不大，转为模块内部自用。传参也变为传入事件 event 对象。如果真要使用请传入以下 JSON 对象作为参数：**
+**说明：目前个人觉得有了发布订阅的 API，此 API 作用不大，转为模块内部自用。传参也变为传入事件 event 对象。如果真要使用请传入以下 JSON 对象作为参数：**
 
 ```ES6
 // 传参对象
@@ -159,7 +159,7 @@ version: 1.0.2
     RL: [37, 39] // RL即对应2个键值
   } 
   // 这里首先会覆盖掉 enter事件的13，然后再覆盖alt的事件名。
-  // 遵循默认配置会被覆盖，一事件名对应多个键值的原则。
+  // 遵循默认配置会被覆盖，一事件名对应多个键值的原则。
   const controlor = new Controlor(keyOpts);
 
   const play = document.querySelector('#videoPlayer');
@@ -178,7 +178,7 @@ version: 1.0.2
       console.log('this is html!');
   });
 
-  // ...此处省略监听部分代码
+  // ...此处省略监听部分代码
   if(isVideo){
 
     // 是否为播放视频界面，如果是，移除main，遥控器只对play有效。
