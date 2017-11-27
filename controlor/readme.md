@@ -62,14 +62,14 @@ _arguments | Array_
 
 **subscribe**
 
-_订阅事件， 参数为  事件名、回调函数，并且返回解绑函数。_
+_订阅事件，参数为事件名、回调函数，并且返回解绑函数。_
 
 _arguments | String | Function_
 
 ```ES6
   // 之后会添加发布回来的消息
   // 1.0.3版本已经可以传参数了
-  const unSubscribe = controlor.subscribe('play',(data)=>{
+  const unSubscribe = controlor.subscribe('play',(data)=>{
     console.log(data)
   });
 
@@ -79,7 +79,7 @@ _arguments | String | Function_
 
 **publish**
 
-_发布事件， 参数为  事件名。_
+_发布事件，参数为事件名。_
 
 _arguments | String_
 
