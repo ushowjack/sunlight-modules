@@ -23,8 +23,8 @@
 
     // controlor.delPress(['LR']);
 
-    const unSubscribe = controlor.subscribe('hello', () => {
-      console.log('hello');
+    const unSubscribe = controlor.subscribe('hello', (data) => {
+      console.log(data);
     })
 
     controlor.subscribe('hello', () => {
@@ -33,6 +33,9 @@
     controlor.subscribe('hello', () => {
       console.log('sb');
     });
+    controlor.publish('hello', 123);
+    unSubscribe();
+    controlor.publish('hello', 456);
 
     // controlor.addListener(document.body);
     controlor.addListener(document.querySelector('#world'));

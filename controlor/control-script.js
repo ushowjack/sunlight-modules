@@ -1,45 +1,48 @@
 /**
  * @description 事件节流
  * @author USHOW JACK, EMAIL: ushowjack@GMail.com
- * @param {any} fn 
- * @param {any} interval 
- * @returns 
+ * @param {any} fn
+ * @param {any} interval
+ * @returns
  */
 function throttle(fn, interval) {
   var $self = fn, //保存需要被延迟执行的函数引用
     timer, //定时器
-    firstTime = true; //是否第一次调用
+    firstTime = true //是否第一次调用
 
-  return function() { //返回一个函数，形成闭包，持久化变量
+  return function() {
+    //返回一个函数，形成闭包，持久化变量
     var args = arguments, //缓存变量
-      $me = this;
-    if (firstTime) { //如果是第一次调用，不用延迟执行
-      $self.apply($me, args);
-      return firstTime = false;
+      $me = this
+    if (firstTime) {
+      //如果是第一次调用，不用延迟执行
+      $self.apply($me, args)
+      return (firstTime = false)
     }
-    if (timer) { //如果定时器还在，说明上一次延迟执行还没有完成
-      return false;
+    if (timer) {
+      //如果定时器还在，说明上一次延迟执行还没有完成
+      return false
     }
-    timer = setTimeout(function() { //延迟一段时间执行
-      clearTimeout(timer);
-      timer = null;
-      $self.apply($me, args);
-    }, interval);
-  };
+    timer = setTimeout(function() {
+      //延迟一段时间执行
+      clearTimeout(timer)
+      timer = null
+      $self.apply($me, args)
+    }, interval)
+  }
 }
 
 class Controler {
   constructor(options = {}, isThrottle = false, interval = 300) {
-
     // PC默认键值
     this.$options = {
-      'enter': 13,
-      'back': 27,
-      'ctrl': 17,
-      'left': 37,
-      'up': 38,
-      'right': 39,
-      'down': 40,
+      enter: 13,
+      back: 27,
+      ctrl: 17,
+      left: 37,
+      up: 38,
+      right: 39,
+      down: 40,
       '0': 48,
       '1': 49,
       '2': 50,
@@ -50,29 +53,38 @@ class Controler {
       '7': 55,
       '8': 56,
       '9': 57
-    };
+    }
 
     // TODO: 如果键值和键名重复就存在bug
     for (const key in this.$options) {
       if (this.$options.hasOwnProperty(key)) {
-        this.$options[this.$options[key]] = key;
-        delete this.$options[key];
+        this.$options[this.$options[key]] = key
+        delete this.$options[key]
       }
     }
 
     // DOM列表
-    this.$elList = [];
+    this.$elList = []
 
-    // 创建一个DOM
-    this.$outDocDom = document.createElement('div');
+    this.$subscribeCenter = {}
 
-    let keydownTrigger = this.keydownTrigger;
+    let keydownTrigger = this.keydownTrigger
     if (isThrottle) {
-      keydownTrigger = throttle(this.keydownTrigger, interval);
+      keydownTrigger = throttle(this.keydownTrigger, interval)
     }
-    this.eventRecode = keydownTrigger.bind(this);
+    this.eventRecode = keydownTrigger.bind(this)
 
-    this.addPress(options);
+    this.addPress(options)
+  }
+
+  // ------------------- 处理工具 --------------------- //
+  isDom(obj) {
+    return typeof HTMLElement === 'object'
+      ? obj instanceof HTMLElement
+      : obj &&
+          typeof obj === 'object' &&
+          obj.nodeType === 1 &&
+          typeof obj.nodeName === 'string'
   }
 
   // ------------------- 按键处理 --------------------- //
@@ -80,14 +92,14 @@ class Controler {
   /**
    * @description 添加按键、一个事件名对应多个code
    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @param {Object} options 
+   * @param {Object} options
    * @memberof Controler
    */
   addPress(options) {
     // 删除重复按键事件名
     for (const key in this.$options) {
       if (options.hasOwnProperty(this.$options[key])) {
-        delete this.$options[key];
+        delete this.$options[key]
       }
     }
 
@@ -95,33 +107,35 @@ class Controler {
     for (const key in options) {
       if (options.hasOwnProperty(key)) {
         if (typeof options[key] === 'number') {
-          options[options[key]] = key;
+          options[options[key]] = key
         } else if (options[key] instanceof Array) {
           options[key].forEach(index => {
-            this.$options[index] = key;
+            this.$options[index] = key
           })
         }
-        delete options[key];
+        delete options[key]
       }
     }
 
     // 合并事件，一个事件对应多个keyCode
-    this.$options = { ...this.$options, ...options };
+    this.$options = { ...this.$options, ...options }
 
-    return this.$options;
-
+    return this.$options
   }
 
   /**
    * @description 删除事件值，传入事件名即可
    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @param {any} [keyCode=[]] 
+   * @param {any} [keyCode=[]]
    * @memberof Controler
    */
   delPress(keyCode = []) {
     for (const key in this.$options) {
-      if (this.$options.hasOwnProperty(key) && ~keyCode.indexOf(this.$options[key])) {
-        delete this.$options[key];
+      if (
+        this.$options.hasOwnProperty(key) &&
+        ~keyCode.indexOf(this.$options[key])
+      ) {
+        delete this.$options[key]
       }
     }
   }
@@ -129,17 +143,17 @@ class Controler {
   // ------------------- 事件处理 --------------------- //
 
   event(type, el, keyCode) {
-    let evt = null;
-    keyCode = keyCode ? keyCode : 'CustomEvent';
+    let evt = null
+    keyCode = keyCode ? keyCode : 'CustomEvent'
 
     try {
-      evt = new window.CustomEvent(type, { detail: { keyCode } });
+      evt = new window.CustomEvent(type, { detail: { keyCode } })
     } catch (e) {
-      evt = document.createEvent('Event');
-      evt.initEvent(type, true, true);
+      evt = document.createEvent('Event')
+      evt.initEvent(type, true, true)
     }
 
-    el ? el.dispatchEvent(evt) : this.$outDocDom.dispatchEvent(evt);
+    el.dispatchEvent(evt)
   }
 
   // ------------------- 监听处理 --------------------- //
@@ -147,54 +161,61 @@ class Controler {
   /**
    * @description 订阅事件
    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @param {any} type 
-   * @param {any} callback 
-   * @returns 
+   * @param {any} type
+   * @param {any} callback
+   * @returns
    * @memberof Controler
    */
   subscribe(type, callback) {
-    this.$outDocDom.addEventListener(type, callback, false);
+    !this.$subscribeCenter[type] ? (this.$subscribeCenter[type] = []) : []
+    this.$subscribeCenter[type].push(callback)
 
     const unSubscribe = function unSubscribe() {
-      this.$outDocDom.removeEventListener(type, callback);
-    }.bind(this);
-    return unSubscribe;
+      this.$subscribeCenter[type].splice(
+        this.$subscribeCenter[type].indexOf(callback),
+        1
+      )
+    }.bind(this)
+    return unSubscribe
   }
 
   /**
    * @description 发布事件
    * @author USHOW JACK, EMAIL: ushowjack@GMail.com
-   * @param {any} type 
+   * @param {any} type
    * @memberof Controler
    */
-  publish(type) {
-    this.event(type);
+  publish(type, data = {}) {
+    console.log(this.$subscribeCenter[type])
+    this.$subscribeCenter[type].forEach(fn => {
+      fn.call(this, data)
+    })
   }
 
   // 添加按键事件
   addListener(el) {
-    this.$elList.push(el);
-    document.removeEventListener('keydown', this.eventRecode);
-    document.addEventListener('keydown', this.eventRecode, false);
+    this.$elList.push(el)
+    document.removeEventListener('keydown', this.eventRecode)
+    document.addEventListener('keydown', this.eventRecode, false)
   }
 
   // 解绑键盘事件
   removeListener(el) {
-    if (this.$elList.indexOf(el) === -1) return;
-    this.$elList.splice(this.$elList.indexOf(el), 1);
+    if (this.$elList.indexOf(el) === -1) return
+    this.$elList.splice(this.$elList.indexOf(el), 1)
   }
 
   // 触发自定义事件器 可以手动触发
   keydownTrigger(evt) {
-    const keyCode = evt.which || evt.keyCode;
-    const el = evt.target;
-    const type = this.$options[keyCode];
+    const keyCode = evt.which || evt.keyCode
+    const el = evt.target
+    const type = this.$options[keyCode]
     if (!this.$options.hasOwnProperty(keyCode)) {
-      console.warn(`未定义该键: ${keyCode}`);
-      return false;
+      console.warn(`未定义该键: ${keyCode}`)
+      return false
     }
     this.$elList.forEach(el => {
-      this.event(type, el, keyCode);
+      this.event(type, el, keyCode)
     })
   }
 }
