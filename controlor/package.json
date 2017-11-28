@@ -1,12 +1,43 @@
 {
   "name": "watch-event",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "use for keydown",
-  "main": "control.js",
+  "main": "./lib/control.js",
   "scripts": {
+    "compile": "npx babel src --out-dir lib",
+    "prepublish": "npm run compile",
+    "server": "node app.babel.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "babel": {
+    "presets": [
+      [
+        "latest",
+        {
+          "targets": {
+            "uglify ": true
+          }
+        }
+      ]
+    ],
+    "plugins": ["transform-object-rest-spread"],
+    "comments": false
   },
   "author": "UShow Jack",
   "license": "ISC",
-  "dependencies": {}
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ushowjack/sunlight-modules.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ushowjack/sunlight-modules/issues"
+  },
+  "homepage": "https://github.com/ushowjack/sunlight-modules#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-latest": "^6.24.1"
+  }
 }
