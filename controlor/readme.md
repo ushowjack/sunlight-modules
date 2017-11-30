@@ -112,7 +112,7 @@ _绑定监听对象，**注意：** keydown 事件绑定在 document 上，而�
 document 是信息集散地，addListener 即订阅数据。_
 
 ```ES6
-  improt Controlor from 'keydownEvent';
+  import Controlor from 'keydownEvent';
 
   const controlor = new  Controlor();
   controlor.addListener(document.body);
